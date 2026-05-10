@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mein Tages-Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F7F5F0;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE8;
+  --border: #E2DDD6;
+  --border2: #CEC9C0;
+  --text: #1A1814;
+  --text2: #6B6560;
+  --text3: #A8A39C;
+  --accent: #2D5A3D;
+  --accent-light: #EAF2EC;
+  --accent-text: #1E3D2A;
+  --morning: #C8813A;
+  --morning-light: #FDF3E8;
+  --evening: #3A5C8C;
+  --evening-light: #EBF0F7;
+  --growth: #7A4F9A;
+  --growth-light: #F3EDF8;
+  --danger: #B84040;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --font-body: 'DM Sans', sans-serif;
+  --font-display: 'Lora', serif;
+  --transition: all 0.2s ease;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* API KEY SCREEN */
+#api-screen {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+.api-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  max-width: 420px;
+  width: 100%;
+}
+.api-card h1 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+.api-card p {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+.api-card a { color: var(--accent); }
+.field-group { margin-bottom: 1rem; }
+.field-group label { display: block; font-size: 13px; color: var(--text2); margin-bottom: 5px; }
+.field-group input {
+  width: 100%;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+}
+.field-group input:focus { outline: none; border-color: var(--accent); }
+.privacy-note {
+  font-size: 12px;
+  color: var(--text3);
+  background: var(--surface2);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 1.2rem;
+  line-height: 1.5;
+}
+
+/* MAIN APP */
+#app { display: none; max-width: 560px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+
+/* HEADER */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.app-header-left h1 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text);
+}
+.app-header-left .date-lbl {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 1px;
+}
+.streak-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--morning-light);
+  color: var(--morning);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* TABS */
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--surface2);
+  border-radius: var(--radius);
+  padding: 3px;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+.tab {
+  flex: 1;
+  padding: 7px 8px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  color: var(--text2);
+  border-radius: 8px;
+  font-family: var(--font-body);
+  white-space: nowrap;
+  transition: var(--transition);
+  font-weight: 400;
+}
+.tab.active {
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 500;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* SECTION */
+.sec { margin-bottom: 1.3rem; }
+.lbl {
+  display: block;
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 6px;
+  font-weight: 400;
+}
+.lbl-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 6px;
+  display: block;
+}
+
+textarea, input[type=text] {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--surface);
+  transition: var(--transition);
+}
+textarea { resize: none; line-height: 1.6; }
+textarea:focus, input[type=text]:focus { outline: none; border-color: var(--border2); background: var(--surface); }
+
+/* SLIDER */
+.slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.slider-wrap label { font-size: 13px; color: var(--text2); flex-shrink: 0; }
+input[type=range] {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.slider-val { font-size: 14px; font-weight: 500; color: var(--text); min-width: 18px; text-align: right; }
+
+/* CHIPS */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  border: 1px solid var(--border2);
+  cursor: pointer;
+  color: var(--text2);
+  background: var(--surface);
+  transition: var(--transition);
+  font-family: var(--font-body);
+}
+.chip.sel { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* BUTTONS */
+.btn {
+  padding: 9px 16px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: var(--transition);
+}
+.btn:hover { background: var(--surface2); }
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  width: 100%;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: var(--radius);
+  margin-top: 1rem;
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-secondary {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: var(--radius);
+  margin-top: 8px;
+  text-align: center;
+  color: var(--text2);
+}
+.btn-sm { font-size: 13px; padding: 6px 12px; color: var(--text2); }
+
+/* TODOS */
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--border);
+}
+.todo-item:last-child { border: none; }
+input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; accent-color: var(--accent); flex-shrink: 0; }
+.todo-txt { flex: 1; font-size: 14px; color: var(--text); }
+.todo-txt.done { text-decoration: line-through; color: var(--text3); }
+.todo-meta { font-size: 11px; color: var(--text3); }
+.todo-del { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 18px; padding: 2px 4px; line-height: 1; border-radius: 4px; font-family: var(--font-body); }
+.todo-del:hover { color: var(--danger); background: #FEF0F0; }
+.add-row { display: flex; gap: 8px; margin-top: 10px; }
+.add-row input { flex: 1; }
+
+/* STATS */
+.stat-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 8px; margin-bottom: 1rem; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; text-align: center; }
+.stat-val { font-size: 22px; font-weight: 500; color: var(--text); }
+.stat-lbl { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* HISTORY */
+.entry-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.entry-date { font-size: 11px; color: var(--text3); margin-bottom: 5px; }
+.entry-tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.tag-morning { background: var(--morning-light); color: var(--morning); }
+.tag-evening { background: var(--evening-light); color: var(--evening); }
+.tag-growth { background: var(--growth-light); color: var(--growth); }
+.entry-body { font-size: 13px; color: var(--text2); line-height: 1.55; }
+.entry-body strong { color: var(--text); font-weight: 500; }
+
+/* FILTER TABS */
+.filter-tabs { display: flex; gap: 6px; margin-bottom: 1rem; }
+.filter-tab { padding: 5px 12px; border-radius: 20px; font-size: 13px; border: 1px solid var(--border2); cursor: pointer; color: var(--text2); background: var(--surface); font-family: var(--font-body); transition: var(--transition); }
+.filter-tab.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+
+/* CLAUDE RESPONSE */
+.claude-bubble {
+  background: var(--accent-light);
+  border: 1px solid #C5DECA;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-top: 1rem;
+  font-size: 14px;
+  color: var(--accent-text);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+.claude-bubble-hdr {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.loading-dots { display: inline-flex; gap: 4px; align-items: center; }
+.loading-dots span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  animation: dot-pulse 1.2s infinite ease-in-out;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dot-pulse { 0%,80%,100%{opacity:.2} 40%{opacity:1} }
+
+/* SAVED INDICATOR */
+.saved-ind { font-size: 12px; color: var(--accent); opacity: 0; transition: opacity 0.3s; margin-left: 8px; }
+.saved-ind.show { opacity: 1; }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 2rem 1rem; color: var(--text3); font-size: 14px; }
+
+/* SETTINGS */
+.settings-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.settings-row:last-child { border: none; }
+.settings-lbl { font-size: 14px; color: var(--text); }
+.settings-sub { font-size: 12px; color: var(--text3); margin-top: 1px; }
+.key-display { font-size: 12px; color: var(--text3); font-family: monospace; }
+
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border); margin: 1.2rem 0; }
+
+@media (max-width: 480px) {
+  #app { padding: 1rem 0.75rem 5rem; }
+  .tab { font-size: 12px; padding: 6px 6px; }
+}
+</style>
+</head>
+<body>
+
+<!-- API KEY SCREEN -->
+<div id="api-screen">
+  <div class="api-card">
+    <h1>Willkommen</h1>
+    <p>Dieses Dashboard speichert alles lokal auf deinem Gerät. Für die KI-Reflexion benötigst du einen Anthropic API-Key.</p>
+    <div class="privacy-note">
+      🔒 Deine Einträge bleiben auf deinem Gerät. Nur wenn du aktiv auf „Reflektieren" drückst, wird der jeweilige Eintrag an die Anthropic API gesendet.
+    </div>
+    <div class="field-group">
+      <label>Anthropic API-Key</label>
+      <input type="password" id="api-key-input" placeholder="sk-ant-..." autocomplete="off">
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:1.2rem">
+      Key beantragen: <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> → API Keys
+    </p>
+    <button class="btn-primary" onclick="startApp()" style="margin-top:0">Starten</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="app-header">
+    <div class="app-header-left">
+      <h1>Mein Dashboard</h1>
+      <div class="date-lbl" id="date-lbl"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <span class="saved-ind" id="saved-ind">✓ Gespeichert</span>
+      <span id="streak-display"></span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('morning',this)">☀ Morgen</button>
+    <button class="tab" onclick="showTab('todos',this)">✓ Todos</button>
+    <button class="tab" onclick="showTab('evening',this)">☽ Abend</button>
+    <button class="tab" onclick="showTab('growth',this)">↑ Wachstum</button>
+    <button class="tab" onclick="showTab('history',this)">≡ Verlauf</button>
+    <button class="tab" onclick="showTab('settings',this)">⚙</button>
+  </div>
+
+  <!-- MORGEN -->
+  <div id="morning" class="panel active">
+    <div class="sec">
+      <span class="lbl">Wie geht es mir gerade?</span>
+      <div class="slider-wrap">
+        <label>Energie & Stimmung</label>
+        <input type="range" min="1" max="10" step="1" value="7" id="s-mood" oninput="sv('mood',this.value)">
+        <span class="slider-val" id="v-mood">7</span>
+      </div>
+    </div>
+    <div class="sec">
+      <span class="lbl-italic">Was ist meine Intention für heute?</span>
+      <textarea id="m-intention" rows="2" placeholder="Was soll heute bedeutsam sein?"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl-italic">Wo ist heute Licht?</span>
+      <textarea id="m-licht" rows="2" placeholder="Worauf freue ich mich, was trägt mich heute?"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl">Lebensbereiche heute</span>
+      <div class="chips" id="morning-chips">
+        <span class="chip" onclick="toggleChip(this,'Arbeit')">Arbeit</span>
+        <span class="chip" onclick="toggleChip(this,'Familie')">Familie</span>
+        <span class="chip" onclick="toggleChip(this,'Gesundheit')">Gesundheit</span>
+        <span class="chip" onclick="toggleChip(this,'Lernen')">Lernen</span>
+        <span class="chip" onclick="toggleChip(this,'Beziehungen')">Beziehungen</span>
+        <span class="chip" onclick="toggleChip(this,'Haushalt')">Haushalt</span>
+        <span class="chip" onclick="toggleChip(this,'Freizeit')">Freizeit</span>
+      </div>
+    </div>
+    <div class="sec">
+      <span class="lbl">Freie Notiz</span>
+      <textarea id="m-note" rows="2" placeholder="Was auch immer…"></textarea>
+    </div>
+    <button class="btn-primary" onclick="saveMorning()">Morgen-Check-in speichern</button>
+    <button class="btn btn-secondary" onclick="reflectMorning()">Mit Claude reflektieren ↗</button>
+    <div id="morning-claude"></div>
+  </div>
+
+  <!-- TODOS -->
+  <div id="todos" class="panel">
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val" id="t-total">0</div><div class="stat-lbl">Gesamt</div></div>
+      <div class="stat-card"><div class="stat-val" id="t-open">0</div><div class="stat-lbl">Offen</div></div>
+      <div class="stat-card"><div class="stat-val" id="t-done">0</div><div class="stat-lbl">Erledigt</div></div>
+    </div>
+    <div id="todo-list"></div>
+    <div class="add-row">
+      <input type="text" id="new-todo" placeholder="Neue Aufgabe…" onkeydown="if(event.key==='Enter')addTodo()">
+      <button class="btn" onclick="addTodo()">+ Hinzufügen</button>
+    </div>
+    <hr class="divider">
+    <button class="btn btn-sm" onclick="clearDone()">Erledigte löschen</button>
+  </div>
+
+  <!-- ABEND -->
+  <div id="evening" class="panel">
+    <div class="sec">
+      <span class="lbl">Wie war der Tag?</span>
+      <div class="slider-wrap">
+        <label>Zufriedenheit</label>
+        <input type="range" min="1" max="10" step="1" value="7" id="s-day" oninput="sv('day',this.value)">
+        <span class="slider-val" id="v-day">7</span>
+      </div>
+    </div>
+    <div class="sec">
+      <span class="lbl-italic">Wo war heute Licht?</span>
+      <textarea id="e-licht" rows="2" placeholder="Was war schön, bedeutsam, leicht?"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl-italic">Was hat mir Energie geraubt?</span>
+      <textarea id="e-drain" rows="2" placeholder="Was hat gezogen, belastet, genervt?"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl">Offene Todos</span>
+      <div id="e-todos-count" style="font-size:14px;color:var(--text2);padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius)"></div>
+    </div>
+    <div class="sec">
+      <span class="lbl">Freie Notiz</span>
+      <textarea id="e-note" rows="2" placeholder="Was auch immer…"></textarea>
+    </div>
+    <button class="btn-primary" onclick="saveEvening()">Abend-Check-in speichern</button>
+    <button class="btn btn-secondary" onclick="reflectEvening()">Mit Claude reflektieren ↗</button>
+    <div id="evening-claude"></div>
+  </div>
+
+  <!-- WACHSTUM -->
+  <div id="growth" class="panel">
+    <div class="sec">
+      <span class="lbl-italic">Was ist gerade mein Entwicklungsfokus?</span>
+      <textarea id="g-focus" rows="2" placeholder="Was möchte ich an mir entwickeln oder stärken?"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl-italic">Meine Absicht diese Woche</span>
+      <textarea id="g-week" rows="2" placeholder="Eine konkrete Absicht…"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl-italic">Was hat mich zuletzt herausgefordert?</span>
+      <textarea id="g-chal" rows="2" placeholder="Beruflich oder persönlich…"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl-italic">Was gibt mir Kraft?</span>
+      <textarea id="g-pow" rows="2" placeholder="Menschen, Aktivitäten, Gedanken…"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl-italic">Was möchte ich lernen oder ausprobieren?</span>
+      <textarea id="g-learn" rows="2" placeholder="Eine Idee, ein Thema, ein Experiment…"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl-italic">Wie lebe ich gerade meine Werte?</span>
+      <textarea id="g-values" rows="2" placeholder="Was stimmt, was fehlt?"></textarea>
+    </div>
+    <div class="sec">
+      <span class="lbl">Freie Notiz</span>
+      <textarea id="g-note" rows="2" placeholder="Was auch immer…"></textarea>
+    </div>
+    <button class="btn-primary" onclick="saveGrowth()">Notiz speichern</button>
+    <button class="btn btn-secondary" onclick="reflectGrowth()">Mit Claude reflektieren ↗</button>
+    <div id="growth-claude"></div>
+  </div>
+
+  <!-- VERLAUF -->
+  <div id="history" class="panel">
+    <div class="stat-grid" style="margin-bottom:1rem">
+      <div class="stat-card"><div class="stat-val" id="h-mornings">0</div><div class="stat-lbl">Morgen</div></div>
+      <div class="stat-card"><div class="stat-val" id="h-evenings">0</div><div class="stat-lbl">Abend</div></div>
+      <div class="stat-card"><div class="stat-val" id="h-avg">–</div><div class="stat-lbl">Ø Zufriedenheit</div></div>
+    </div>
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="setFilter('all',this)">Alle</button>
+      <button class="filter-tab" onclick="setFilter('morning',this)">Morgen</button>
+      <button class="filter-tab" onclick="setFilter('evening',this)">Abend</button>
+      <button class="filter-tab" onclick="setFilter('growth',this)">Wachstum</button>
+    </div>
+    <div id="history-list"></div>
+    <button class="btn btn-secondary" style="margin-top:.5rem" onclick="reflectHistory()">Verlauf mit Claude besprechen ↗</button>
+    <div id="history-claude"></div>
+  </div>
+
+  <!-- EINSTELLUNGEN -->
+  <div id="settings" class="panel">
+    <div class="settings-row">
+      <div>
+        <div class="settings-lbl">API-Key</div>
+        <div class="key-display" id="key-display"></div>
+      </div>
+      <button class="btn btn-sm" onclick="changeKey()">Ändern</button>
+    </div>
+    <div class="settings-row">
+      <div>
+        <div class="settings-lbl">Alle Daten löschen</div>
+        <div class="settings-sub">Einträge, Todos, Verlauf</div>
+      </div>
+      <button class="btn btn-sm" style="color:var(--danger);border-color:var(--danger)" onclick="clearAll()">Löschen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var STORAGE_KEY = 'mein-dashboard-v2';
+var API_KEY_STORAGE = 'mein-dashboard-apikey';
+var apiKey = '';
+var sliders = { mood: 7, day: 7 };
+var selectedAreas = [];
+var historyFilter = 'all';
+var db = { mornings: [], evenings: [], growths: [], todos: [] };
+
+function sv(k, v) {
+  sliders[k] = parseInt(v);
+  document.getElementById('v-' + k).textContent = v;
+}
+
+function loadDB() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) db = JSON.parse(raw);
+  } catch(e) {}
+}
+
+function saveDB() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  var ind = document.getElementById('saved-ind');
+  ind.classList.add('show');
+  setTimeout(function() { ind.classList.remove('show'); }, 2000);
+}
+
+function todayKey() {
+  var d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  var d = new Date(iso + 'T12:00:00');
+  var days = ['So','Mo','Di','Mi','Do','Fr','Sa'];
+  var months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  return days[d.getDay()] + ', ' + d.getDate() + '. ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function startApp() {
+  var key = document.getElementById('api-key-input').value.trim();
+  if (!key) { alert('Bitte einen API-Key eingeben.'); return; }
+  apiKey = key;
+  localStorage.setItem(API_KEY_STORAGE, key);
+  showApp();
+}
+
+function showApp() {
+  document.getElementById('api-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  loadDB();
+  initApp();
+}
+
+function initApp() {
+  var d = new Date();
+  var days = ['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+  var months = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  document.getElementById('date-lbl').textContent = days[d.getDay()] + ', ' + d.getDate() + '. ' + months[d.getMonth()] + ' ' + d.getFullYear();
+  renderTodos();
+  updateEveningTodoCount();
+  updateStreak();
+  updateHistoryStats();
+  renderHistory();
+  loadGrowthFields();
+  var kd = document.getElementById('key-display');
+  if (kd) kd.textContent = apiKey.substring(0,12) + '…';
+}
+
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (id === 'history') renderHistory();
+  if (id === 'evening') updateEveningTodoCount();
+}
+
+function toggleChip(el, name) {
+  el.classList.toggle('sel');
+  var i = selectedAreas.indexOf(name);
+  if (i > -1) selectedAreas.splice(i, 1); else selectedAreas.push(name);
+}
+
+// MORGEN
+function saveMorning() {
+  var entry = {
+    date: todayKey(),
+    ts: Date.now(),
+    mood: sliders.mood,
+    intention: document.getElementById('m-intention').value.trim(),
+    licht: document.getElementById('m-licht').value.trim(),
+    areas: selectedAreas.slice(),
+    note: document.getElementById('m-note').value.trim()
+  };
+  db.mornings = db.mornings.filter(function(m) { return m.date !== entry.date; });
+  db.mornings.unshift(entry);
+  saveDB();
+  updateStreak();
+  updateHistoryStats();
+}
+
+async function reflectMorning() {
+  var intention = document.getElementById('m-intention').value.trim();
+  var licht = document.getElementById('m-licht').value.trim();
+  var note = document.getElementById('m-note').value.trim();
+  var prompt = 'Morgen-Check-in:\nStimmung/Energie: ' + sliders.mood + '/10\nIntention: ' + (intention||'–') + '\nWo ist heute Licht: ' + (licht||'–') + (note ? '\nNotiz: ' + note : '') + (selectedAreas.length ? '\nLebensbereiche: ' + selectedAreas.join(', ') : '') + '\n\nBitte gib mir einen kurzen, wärmenden Impuls für den Tag. Nicht mehr als 3-4 Sätze.';
+  await callClaude(prompt, 'morning-claude');
+}
+
+// TODOS
+function addTodo() {
+  var inp = document.getElementById('new-todo');
+  var txt = inp.value.trim();
+  if (!txt) return;
+  db.todos.push({ text: txt, done: false, date: todayKey() });
+  inp.value = '';
+  renderTodos();
+  updateEveningTodoCount();
+  saveDB();
+}
+
+function toggleTodo(i) { db.todos[i].done = !db.todos[i].done; renderTodos(); updateEveningTodoCount(); saveDB(); }
+function deleteTodo(i) { db.todos.splice(i, 1); renderTodos(); updateEveningTodoCount(); saveDB(); }
+function clearDone() { db.todos = db.todos.filter(function(t) { return !t.done; }); renderTodos(); updateEveningTodoCount(); saveDB(); }
+
+function renderTodos() {
+  var list = document.getElementById('todo-list');
+  list.innerHTML = '';
+  if (db.todos.length === 0) {
+    list.innerHTML = '<div class="empty">Keine Todos – guter Tag!</div>';
+  } else {
+    db.todos.forEach(function(t, i) {
+      var div = document.createElement('div');
+      div.className = 'todo-item';
+      div.innerHTML = '<input type="checkbox"' + (t.done ? ' checked' : '') + ' onchange="toggleTodo(' + i + ')">' +
+        '<div style="flex:1"><div class="todo-txt' + (t.done ? ' done' : '') + '">' + escHtml(t.text) + '</div>' +
+        (t.date ? '<div class="todo-meta">' + fmtDate(t.date) + '</div>' : '') + '</div>' +
+        '<button class="todo-del" onclick="deleteTodo(' + i + ')" aria-label="Löschen">×</button>';
+      list.appendChild(div);
+    });
+  }
+  var total = db.todos.length, done = db.todos.filter(function(t) { return t.done; }).length;
+  document.getElementById('t-total').textContent = total;
+  document.getElementById('t-open').textContent = total - done;
+  document.getElementById('t-done').textContent = done;
+}
+
+function updateEveningTodoCount() {
+  var open = db.todos.filter(function(t) { return !t.done; }).length;
+  var done = db.todos.filter(function(t) { return t.done; }).length;
+  var el = document.getElementById('e-todos-count');
+  if (el) el.textContent = open + ' offen · ' + done + ' erledigt';
+}
+
+// ABEND
+function saveEvening() {
+  var entry = {
+    date: todayKey(),
+    ts: Date.now(),
+    day: sliders.day,
+    licht: document.getElementById('e-licht').value.trim(),
+    drain: document.getElementById('e-drain').value.trim(),
+    note: document.getElementById('e-note').value.trim(),
+    todosOpen: db.todos.filter(function(t) { return !t.done; }).length,
+    todosDone: db.todos.filter(function(t) { return t.done; }).length
+  };
+  db.evenings = db.evenings.filter(function(e) { return e.date !== entry.date; });
+  db.evenings.unshift(entry);
+  saveDB();
+  updateHistoryStats();
+}
+
+async function reflectEvening() {
+  var licht = document.getElementById('e-licht').value.trim();
+  var drain = document.getElementById('e-drain').value.trim();
+  var note = document.getElementById('e-note').value.trim();
+  var open = db.todos.filter(function(t) { return !t.done; }).length;
+  var prev = db.evenings.length > 0 ? '\nGestrige Zufriedenheit: ' + db.evenings[0].day + '/10' : '';
+  var prompt = 'Abend-Check-in:\nZufriedenheit: ' + sliders.day + '/10' + prev + '\nWo war heute Licht: ' + (licht||'–') + '\nWas hat Energie geraubt: ' + (drain||'–') + '\nOffene Todos: ' + open + (note ? '\nNotiz: ' + note : '') + '\n\nBitte reflektiere kurz mit mir. Was fällt dir auf? Gib mir 1-2 Impulse für morgen. Maximal 4 Sätze.';
+  await callClaude(prompt, 'evening-claude');
+}
+
+// WACHSTUM
+function saveGrowth() {
+  var entry = {
+    date: todayKey(),
+    ts: Date.now(),
+    focus: document.getElementById('g-focus').value.trim(),
+    week: document.getElementById('g-week').value.trim(),
+    chal: document.getElementById('g-chal').value.trim(),
+    pow: document.getElementById('g-pow').value.trim(),
+    learn: document.getElementById('g-learn').value.trim(),
+    values: document.getElementById('g-values').value.trim(),
+    note: document.getElementById('g-note').value.trim()
+  };
+  db.growths = db.growths.filter(function(g) { return g.date !== entry.date; });
+  db.growths.unshift(entry);
+  localStorage.setItem('dashboard-growth-fields', JSON.stringify(entry));
+  saveDB();
+}
+
+function loadGrowthFields() {
+  try {
+    var raw = localStorage.getItem('dashboard-growth-fields');
+    if (!raw) return;
+    var f = JSON.parse(raw);
+    ['focus','week','chal','pow','learn','values','note'].forEach(function(k) {
+      var el = document.getElementById('g-' + k);
+      if (el && f[k]) el.value = f[k];
+    });
+  } catch(e) {}
+}
+
+async function reflectGrowth() {
+  var fields = {
+    focus: document.getElementById('g-focus').value.trim(),
+    week: document.getElementById('g-week').value.trim(),
+    chal: document.getElementById('g-chal').value.trim(),
+    pow: document.getElementById('g-pow').value.trim(),
+    learn: document.getElementById('g-learn').value.trim(),
+    values: document.getElementById('g-values').value.trim(),
+    note: document.getElementById('g-note').value.trim()
+  };
+  var prev = db.growths.length > 1 ? '\nLetzter Eintrag (' + db.growths[1].date + '): Fokus war "' + db.growths[1].focus + '"' : '';
+  var prompt = 'Wachstums-Reflexion:\nFokus: ' + (fields.focus||'–') + '\nWochenabsicht: ' + (fields.week||'–') + '\nHerausforderung: ' + (fields.chal||'–') + '\nKraftquelle: ' + (fields.pow||'–') + '\nLernen: ' + (fields.learn||'–') + '\nWerte: ' + (fields.values||'–') + prev + '\n\nBitte hilf mir, tiefer zu reflektieren. Was siehst du? Welche Muster oder Impulse erkennst du? Maximal 5 Sätze.';
+  await callClaude(prompt, 'growth-claude');
+}
+
+// VERLAUF
+function setFilter(f, btn) {
+  historyFilter = f;
+  document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  renderHistory();
+}
+
+function renderHistory() {
+  var list = document.getElementById('history-list');
+  if (!list) return;
+  list.innerHTML = '';
+  var entries = [];
+  if (historyFilter === 'all' || historyFilter === 'morning') {
+    db.mornings.forEach(function(e) { entries.push(Object.assign({type:'morning'}, e)); });
+  }
+  if (historyFilter === 'all' || historyFilter === 'evening') {
+    db.evenings.forEach(function(e) { entries.push(Object.assign({type:'evening'}, e)); });
+  }
+  if (historyFilter === 'all' || historyFilter === 'growth') {
+    db.growths.forEach(function(e) { entries.push(Object.assign({type:'growth'}, e)); });
+  }
+  entries.sort(function(a,b) { return b.ts - a.ts; });
+  if (entries.length === 0) { list.innerHTML = '<div class="empty">Noch keine Einträge</div>'; return; }
+  entries.slice(0, 20).forEach(function(e) {
+    var div = document.createElement('div');
+    div.className = 'entry-card';
+    var tag = e.type === 'morning' ? '<span class="entry-tag tag-morning">Morgen</span>' :
+              e.type === 'evening' ? '<span class="entry-tag tag-evening">Abend</span>' :
+              '<span class="entry-tag tag-growth">Wachstum</span>';
+    var body = '';
+    if (e.type === 'morning') {
+      body = '<strong>Stimmung:</strong> ' + e.mood + '/10' +
+        (e.intention ? '<br><strong>Intention:</strong> ' + escHtml(e.intention) : '') +
+        (e.licht ? '<br><strong>Licht:</strong> ' + escHtml(e.licht) : '') +
+        (e.areas && e.areas.length ? '<br><strong>Bereiche:</strong> ' + e.areas.join(', ') : '') +
+        (e.note ? '<br><strong>Notiz:</strong> ' + escHtml(e.note) : '');
+    } else if (e.type === 'evening') {
+      body = '<strong>Zufriedenheit:</strong> ' + e.day + '/10' +
+        (e.licht ? '<br><strong>Licht:</strong> ' + escHtml(e.licht) : '') +
+        (e.drain ? '<br><strong>Energieraub:</strong> ' + escHtml(e.drain) : '') +
+        '<br><strong>Todos:</strong> ' + (e.todosDone||0) + ' erledigt, ' + (e.todosOpen||0) + ' offen' +
+        (e.note ? '<br><strong>Notiz:</strong> ' + escHtml(e.note) : '');
+    } else {
+      body = (e.focus ? '<strong>Fokus:</strong> ' + escHtml(e.focus) : '') +
+        (e.week ? '<br><strong>Woche:</strong> ' + escHtml(e.week) : '') +
+        (e.chal ? '<br><strong>Herausforderung:</strong> ' + escHtml(e.chal) : '') +
+        (e.pow ? '<br><strong>Kraft:</strong> ' + escHtml(e.pow) : '') +
+        (e.learn ? '<br><strong>Lernen:</strong> ' + escHtml(e.learn) : '') +
+        (e.values ? '<br><strong>Werte:</strong> ' + escHtml(e.values) : '') +
+        (e.note ? '<br><strong>Notiz:</strong> ' + escHtml(e.note) : '');
+    }
+    div.innerHTML = '<div class="entry-date">' + fmtDate(e.date) + '</div>' + tag + '<div class="entry-body">' + body + '</div>';
+    list.appendChild(div);
+  });
+}
+
+async function reflectHistory() {
+  var last5e = db.evenings.slice(0,5).map(function(e) { return e.date + ': Zufriedenheit ' + e.day + (e.licht ? ', Licht: ' + e.licht : ''); }).join('\n');
+  var last3m = db.mornings.slice(0,3).map(function(e) { return e.date + ': Stimmung ' + e.mood + (e.intention ? ', Intention: ' + e.intention : ''); }).join('\n');
+  var growthNote = db.growths.length > 0 ? 'Aktueller Fokus: ' + db.growths[0].focus : '';
+  var prompt = 'Mein Verlauf:\n\nLetzte Morgen:\n' + (last3m||'–') + '\n\nLetzte Abende:\n' + (last5e||'–') + '\n\n' + growthNote + '\n\nWas fällt dir auf? Siehst du Muster? Was würdest du mir empfehlen? Maximal 5 Sätze.';
+  await callClaude(prompt, 'history-claude');
+}
+
+// STATISTIKEN
+function updateStreak() {
+  var dates = db.mornings.map(function(m) { return m.date; }).sort().reverse();
+  if (dates.length === 0) { document.getElementById('streak-display').innerHTML = ''; return; }
+  var streak = 0;
+  var cur = new Date();
+  for (var i = 0; i < 60; i++) {
+    var d = new Date(cur);
+    d.setDate(d.getDate() - i);
+    var k = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    if (dates.indexOf(k) > -1) streak++; else break;
+  }
+  document.getElementById('streak-display').innerHTML = streak > 0 ? '<span class="streak-pill">🔥 ' + streak + ' Tag' + (streak === 1 ? '' : 'e') + '</span>' : '';
+}
+
+function updateHistoryStats() {
+  document.getElementById('h-mornings').textContent = db.mornings.length;
+  document.getElementById('h-evenings').textContent = db.evenings.length;
+  if (db.evenings.length > 0) {
+    var avg = db.evenings.reduce(function(s,e) { return s + e.day; }, 0) / db.evenings.length;
+    document.getElementById('h-avg').textContent = avg.toFixed(1);
+  }
+}
+
+// CLAUDE API
+async function callClaude(prompt, targetId) {
+  var container = document.getElementById(targetId);
+  if (!container) return;
+  container.innerHTML = '<div class="claude-bubble"><div class="claude-bubble-hdr">Claude</div><div class="loading-dots"><span></span><span></span><span></span></div></div>';
+  try {
+    var response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: 'Du bist ein einfühlsamer persönlicher Reflexionspartner. Deine Antworten sind warm, konkret und kurz. Du sprichst die Person direkt an, ohne Floskeln. Antworte auf Deutsch.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    var data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    var text = data.content.filter(function(b) { return b.type === 'text'; }).map(function(b) { return b.text; }).join('');
+    container.innerHTML = '<div class="claude-bubble"><div class="claude-bubble-hdr">Claude</div>' + escHtml(text) + '</div>';
+  } catch(e) {
+    container.innerHTML = '<div class="claude-bubble" style="border-color:#E8C5C5;background:#FEF0F0;color:var(--danger)"><div class="claude-bubble-hdr">Fehler</div>' + escHtml(e.message) + '</div>';
+  }
+}
+
+// SETTINGS
+function changeKey() {
+  var newKey = prompt('Neuer API-Key:');
+  if (newKey && newKey.trim()) {
+    apiKey = newKey.trim();
+    localStorage.setItem(API_KEY_STORAGE, apiKey);
+    document.getElementById('key-display').textContent = apiKey.substring(0,12) + '…';
+  }
+}
+
+function clearAll() {
+  if (confirm('Alle Einträge und Todos unwiderruflich löschen?')) {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem('dashboard-growth-fields');
+    db = { mornings: [], evenings: [], growths: [], todos: [] };
+    renderTodos();
+    updateHistoryStats();
+    renderHistory();
+    updateStreak();
+    alert('Alle Daten gelöscht.');
+  }
+}
+
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+}
+
+// INIT
+window.addEventListener('load', function() {
+  var savedKey = localStorage.getItem(API_KEY_STORAGE);
+  if (savedKey) {
+    apiKey = savedKey;
+    showApp();
+  }
+});
+</script>
+</body>
+</html>
