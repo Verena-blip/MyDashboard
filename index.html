@@ -918,7 +918,7 @@ async function callClaude(prompt, targetId) {
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 1000,
         system: 'Du bist ein einfühlsamer persönlicher Reflexionspartner. Deine Antworten sind warm, konkret und kurz. Du sprichst die Person direkt an, ohne Floskeln. Antworte auf Deutsch.',
         messages: [{ role: 'user', content: prompt }]
